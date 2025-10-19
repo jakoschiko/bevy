@@ -20,7 +20,7 @@ use {
 #[cfg(all(feature = "serialize", feature = "bevy_reflect"))]
 use bevy_reflect::{ReflectDeserialize, ReflectSerialize};
 
-use crate::VideoMode;
+use crate::{prelude::DefaultEventHandling, VideoMode};
 
 /// Default string used for the window title.
 ///
@@ -259,11 +259,11 @@ pub struct Window {
     pub fit_canvas_to_parent: bool,
     /// Whether or not to stop events from propagating out of the canvas element
     ///
-    ///  When `true`, this will prevent common browser hotkeys like F5, F12, Ctrl+R, tab, etc.
+    /// It allows to prevent common browser hotkeys like F5, F12, Ctrl+R, tab, etc.
     /// from performing their default behavior while the bevy app has focus.
     ///
     /// This value has no effect on non-web platforms.
-    pub prevent_default_event_handling: bool,
+    pub default_event_handling: DefaultEventHandling,
     /// Stores internal state that isn't directly accessible.
     pub internal: InternalWindowState,
     /// Should the window use Input Method Editor?
@@ -486,7 +486,7 @@ impl Default for Window {
             focused: true,
             window_level: Default::default(),
             fit_canvas_to_parent: false,
-            prevent_default_event_handling: true,
+            default_event_handling: Default::default(),
             canvas: None,
             window_theme: None,
             visible: true,

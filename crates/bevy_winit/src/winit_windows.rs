@@ -294,8 +294,9 @@ impl WinitWindows {
                 }
             }
 
-            winit_window_attributes =
-                winit_window_attributes.with_prevent_default(window.prevent_default_event_handling);
+            // We handle this in Bevy to have fine-grained control, see DefaultEventHandling
+            winit_window_attributes = winit_window_attributes.with_prevent_default(false);
+
             winit_window_attributes = winit_window_attributes.with_append(true);
         }
 

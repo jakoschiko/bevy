@@ -44,6 +44,7 @@ use crate::{
 };
 
 pub mod accessibility;
+mod canvas_listeners;
 mod converters;
 mod cursor;
 mod state;

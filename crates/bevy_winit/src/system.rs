@@ -33,6 +33,7 @@ use winit::platform::web::WindowExtWebSys;
 
 use crate::{
     accessibility::ACCESS_KIT_ADAPTERS,
+    canvas_listeners::CanvasListeners,
     converters::{
         convert_enabled_buttons, convert_resize_direction, convert_window_level,
         convert_window_theme, convert_winit_theme,
@@ -102,14 +103,19 @@ pub fn create_windows<F: QueryFilter + 'static>(
 
                 #[cfg(target_arch = "wasm32")]
                 {
+                    let canvas = winit_window
+                        .canvas()
+                        .expect("window.canvas() can only be called in main thread.");
+
                     if window.fit_canvas_to_parent {
-                        let canvas = winit_window
-                            .canvas()
-                            .expect("window.canvas() can only be called in main thread.");
                         let style = canvas.style();
                         style.set_property("width", "100%").unwrap();
                         style.set_property("height", "100%").unwrap();
                     }
+
+                    let canvas_listeners =
+                        CanvasListeners::new(canvas, window.default_event_handling.clone());
+                    commands.entity(entity).insert(canvas_listeners);
                 }
 
                 #[cfg(target_os = "ios")]
@@ -299,13 +305,21 @@ pub(crate) struct CachedCursorOptions(CursorOptions);
 /// - [`Window::canvas`] cannot be changed after the window is created.
 /// - [`Window::focused`] cannot be manually changed to `false` after the window is created.
 pub(crate) fn changed_windows(
-    mut changed_windows: Query<(Entity, &mut Window, &mut CachedWindow), Changed<Window>>,
+    mut changed_windows: Query<
+        (
+            Entity,
+            &mut Window,
+            &mut CachedWindow,
+            Option<&mut CanvasListeners>,
+        ),
+        Changed<Window>,
+    >,
     monitors: Res<WinitMonitors>,
     mut window_resized: MessageWriter<WindowResized>,
     _non_send_marker: NonSendMarker,
 ) {
     WINIT_WINDOWS.with_borrow(|winit_windows| {
-        for (entity, mut window, mut cache) in &mut changed_windows {
+        for (entity, mut window, mut cache, canvas_listeners) in &mut changed_windows {
             let Some(winit_window) = winit_windows.get_window(entity) else {
                 continue;
             };
@@ -562,6 +576,10 @@ pub(crate) fn changed_windows(
                 }
             }
             **cache = window.clone();
+
+            if let Some(mut canvas_listeners) = canvas_listeners {
+                canvas_listeners.set_default_event_handling(window.default_event_handling.clone());
+            }
         }
     });
 }

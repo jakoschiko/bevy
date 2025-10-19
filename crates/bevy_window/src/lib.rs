@@ -18,6 +18,7 @@ extern crate std;
 extern crate alloc;
 
 mod cursor;
+pub mod default_event_handling;
 mod event;
 mod monitor;
 mod raw_handle;
@@ -38,9 +39,9 @@ pub use window::*;
 pub mod prelude {
     #[doc(hidden)]
     pub use crate::{
-        CursorEntered, CursorLeft, CursorMoved, FileDragAndDrop, Ime, MonitorSelection,
-        VideoModeSelection, Window, WindowMoved, WindowPlugin, WindowPosition,
-        WindowResizeConstraints,
+        default_event_handling::DefaultEventHandling, CursorEntered, CursorLeft, CursorMoved,
+        FileDragAndDrop, Ime, MonitorSelection, VideoModeSelection, Window, WindowMoved,
+        WindowPlugin, WindowPosition, WindowResizeConstraints,
     };
 }
 
